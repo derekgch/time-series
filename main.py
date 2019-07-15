@@ -7,6 +7,7 @@ plt.style.use('fivethirtyeight')
 import pandas as pd
 import statsmodels.api as sm
 import matplotlib
+from pylab import rcParams
 
 matplotlib.rcParams['axes.labelsize'] = 14
 matplotlib.rcParams['xtick.labelsize'] = 12
@@ -24,5 +25,23 @@ furniture.drop(cols, axis=1, inplace=True)
 furniture = furniture.sort_values('Order Date')
 
 furniture.isnull().sum()
+furniture['Order Date'].min()
+furniture['Order Date'].max()
 
-print( furniture )
+furniture = furniture.groupby('Order Date')['Sales'].sum().reset_index()
+furniture.head()
+
+furniture = furniture.set_index('Order Date')
+furniture.index
+y = furniture['Sales'].resample('MS').mean()
+# y['2017':]
+
+# y.plot(figsize=(15, 6))
+# plt.show()
+
+rcParams['figure.figsize'] = 18, 8
+
+decomposition = sm.tsa.seasonal_decompose(y, model='additive')
+fig = decomposition.plot()
+plt.show()
+print( y['2017':] )
