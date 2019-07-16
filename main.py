@@ -1,13 +1,17 @@
 import warnings
+import more_itertools
 import itertools
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import pylab
 warnings.filterwarnings("ignore")
 plt.style.use('fivethirtyeight')
 import pandas as pd
 import statsmodels.api as sm
 import matplotlib
 from pylab import rcParams
+
+# from fbprophet import Prophet
 
 matplotlib.rcParams['axes.labelsize'] = 14
 matplotlib.rcParams['xtick.labelsize'] = 12
@@ -34,7 +38,7 @@ furniture.head()
 furniture = furniture.set_index('Order Date')
 furniture.index
 y = furniture['Sales'].resample('MS').mean()
-# y['2017':]
+y['2017':]
 
 # y.plot(figsize=(15, 6))
 # plt.show()
@@ -42,6 +46,7 @@ y = furniture['Sales'].resample('MS').mean()
 rcParams['figure.figsize'] = 18, 8
 
 decomposition = sm.tsa.seasonal_decompose(y, model='additive')
+
 # fig = decomposition.plot()
 # plt.show()
 # print( y['2017':] )
@@ -50,11 +55,11 @@ p = d = q = range(0, 2)
 pdq = list(itertools.product(p, d, q))
 seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(p, d, q))]
 
-# print('Examples of parameter combinations for Seasonal ARIMA...')
-# print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
-# print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
-# print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
-# print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
+# # print('Examples of parameter combinations for Seasonal ARIMA...')
+# # print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
+# # print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
+# # print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
+# # print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
 
 
 for param in pdq:
@@ -78,12 +83,12 @@ mod = sm.tsa.statespace.SARIMAX(y,
                                 enforce_stationarity=False,
                                 enforce_invertibility=False)
 
-results = mod.fit()
+# results = mod.fit()
 
-# print(results.summary().tables[1])
+# # print(results.summary().tables[1])
 
-# results.plot_diagnostics(figsize=(16, 8))
-# plt.show()
+# # results.plot_diagnostics(figsize=(16, 8))
+# # plt.show()
 
 
 pred = results.get_prediction(start=pd.to_datetime('2017-01-01'), dynamic=False)
@@ -101,3 +106,14 @@ ax.set_ylabel('Furniture Sales')
 plt.legend()
 
 plt.show()
+
+# furniture = furniture.rename(columns={'Order Date': 'ds', 'Sales': 'y'})
+# furniture_model = Prophet(interval_width=0.95)
+# furniture_model.fit(furniture)
+
+# furniture_forecast = furniture_model.make_future_dataframe(periods=36, freq='MS')
+# furniture_forecast = furniture_model.predict(furniture_forecast)
+
+# plt.figure(figsize=(18, 6))
+# furniture_model.plot(furniture_forecast, xlabel = 'Date', ylabel = 'Sales')
+# plt.title('Furniture Sales')
